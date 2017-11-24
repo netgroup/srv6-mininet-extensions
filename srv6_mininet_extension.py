@@ -1,6 +1,5 @@
 # !/usr/bin/python
 
-#
 # Copyright (C) 2017 Pier Luigi Ventre, Stefano Salsano - (CNIT and University of Rome "Tor Vergata")
 #
 #
@@ -47,6 +46,8 @@ from routing import SPFRouting
 import os
 import json
 import sys
+
+# Parser
 from srv6_topo_parser import Srv6TopoParser
 
 import networkx as nx
@@ -57,11 +58,9 @@ parser_path = "./"
 if parser_path == "":
     print "Error : Set parser_path variable in mininet_deployer.py"
     sys.exit(-2)
-
 if not os.path.exists(parser_path):
     error("Error : parser_path variable in mininet_deployer.py points to a non existing folder\n")
     sys.exit(-2)
-
 sys.path.append(parser_path)
 
 # Mapping host to vnfs
@@ -102,9 +101,8 @@ class Abilene(Topo):
     def __init__(self, bw=1, top="", **opts):
         # Init steps
         Topo.__init__(self, **opts)
-        # Get VNFs mapping
-
-
+       
+        # Retrieves topology from json file
         topo = Srv6TopoParser(top, verbose=False, version=2)
 
         # We are going to use bw constrained links
@@ -288,7 +286,6 @@ class Abilene(Topo):
             # Map subnet to rhs
             subnets_to_via[str(net.exploded)].append(rhs)
 
-
 # Utility function to dump relevant information of the emulation
 def dump():
     # Json dump of the topology
@@ -330,7 +327,6 @@ def dump():
     with open(VNF_FILE, 'w') as outfile:
         json.dump(nodes_to_vnfs, outfile, sort_keys=True, indent=2)
 
-
 # Utility function to shutdown the emulation
 def shutdown():
     # Clean Mininet emulation environment
@@ -338,14 +334,12 @@ def shutdown():
     # Clean Mininet emulation environment
     os.system('sudo killall sshd')
 
-
 # Utility function to deploy Mininet topology
 def deploy(options):
     # Retrieves options
     bw = options.bw
     controller = options.controller
     topologyFile = options.topology
-
     # Create routing
     routing = SPFRouting()
     # Set Mininet log level to info
@@ -385,7 +379,6 @@ def deploy(options):
     # Stop topology
     net.stop()
 
-
 # Parse command line options and dump results
 def parseOptions():
     parser = OptionParser()
@@ -395,6 +388,7 @@ def parseOptions():
     # IP of RYU controller
     parser.add_option('--controller', dest='controller', type='string', default="127.0.0.1",
                       help='IP address of the Controlle instance')
+    # Topology json file
     parser.add_option('--topology', dest='topology', type='string', default="example_network_abilene.json",
                       help='Topology file')
     # Parse input parameters

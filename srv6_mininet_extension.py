@@ -1,6 +1,6 @@
 # !/usr/bin/python
 
-# Copyright (C) 2017 Pier Luigi Ventre, Stefano Salsano - (CNIT and University of Rome "Tor Vergata")
+# Copyright (C) 2017 Pier Luigi Ventre, Stefano Salsano, Alessandro Masci - (CNIT and University of Rome "Tor Vergata")
 #
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,21 +47,21 @@ import os
 import json
 import sys
 
-# Parser
-from srv6_topo_parser import Srv6TopoParser
-
 import networkx as nx
 
 from networkx.readwrite import json_graph
 
-parser_path = "./"
+parser_path = "/home/user/workspace/Dreamer-Topology-Parser-and-Validator/"
 if parser_path == "":
-    print "Error : Set parser_path variable in mininet_deployer.py"
+    print "Error : Set parser_path variable in srv6_mininet_extension.py"
     sys.exit(-2)
 if not os.path.exists(parser_path):
-    error("Error : parser_path variable in mininet_deployer.py points to a non existing folder\n")
+    error("Error : parser_path variable in srv6_mininet_extension.py points to a non existing folder\n")
     sys.exit(-2)
 sys.path.append(parser_path)
+
+# Parser
+from srv6_topo_parser import Srv6TopoParser
 
 # Mapping host to vnfs
 nodes_to_vnfs = defaultdict(list)
@@ -77,14 +77,6 @@ topology = nx.MultiDiGraph()
 interfaces_to_ip = {}
 # Default via
 host_to_default_via = {}
-# Vnfs file
-VNF_FILE = "../deployment/vnfs.json"
-# nodes.sh file for setup of the nodes
-NODES_SH = "../deployment/nodes.sh"
-# Routing file
-ROUTING_FILE = "../deployment/routing.json"
-# Topology file
-TOPOLOGY_FILE = "../deployment/topology.json"
 # Management Mask
 MGMT_MASK = 64
 # Data plane Mask
@@ -98,7 +90,7 @@ VNF_MASK = 128
 # Create Abilene topology and a management network for the hosts.
 class Abilene(Topo):
     # Init of the topology
-    def __init__(self, bw=1, top="", **opts):
+    def __init__(self, top="", **opts):
         # Init steps
         Topo.__init__(self, **opts)
        
@@ -106,7 +98,7 @@ class Abilene(Topo):
         topo = Srv6TopoParser(top, verbose=False, version=2)
 
         # We are going to use bw constrained links
-        linkopts = dict(bw=bw)
+        linkopts = dict(bw=1, delay=1000)
 
         # Create subnetting objects for assigning data plane addresses
         dataPlaneSpace = unicode('2001::0/%d' % DP_SPACE)
@@ -126,7 +118,7 @@ class Abilene(Topo):
         # Define the core links connecting switches
         core_links = topo.getCore()
 
-        # Iterate on the switches and generate them
+        # Iterate on the routers and generate them
         for router in routers:
             # Assign mgmt plane IP
             mgmtIP = mgmtPlaneHosts.next()
@@ -146,7 +138,7 @@ class Abilene(Topo):
         # Create the mgmt switch
         br_mgmt = self.addSwitch('br-mgmt1', cls=OVSBridge)
 
-        # Iterate on the switches and generate them
+        # Iterate on the hosts and generate them
         for host in hosts:
             # Define host group
             group = 100
@@ -172,7 +164,7 @@ class Abilene(Topo):
                 nodes_to_vnfs[host] = vnfips
             # Assign mgmt plane IP
             mgmtIP = mgmtPlaneHosts.next()
-            # Add the router to the topology
+            # Add the host to the topology
             self.addHost(
                 name=host,
                 cls=IPHost,
@@ -286,46 +278,6 @@ class Abilene(Topo):
             # Map subnet to rhs
             subnets_to_via[str(net.exploded)].append(rhs)
 
-# Utility function to dump relevant information of the emulation
-def dump():
-    # Json dump of the topology
-    with open(TOPOLOGY_FILE, 'w') as outfile:
-        # Get json topology
-        json_topology = json_graph.node_link_data(topology)
-        # Convert links
-
-        json_topology['links'] = [
-            {
-                'source': json_topology['nodes'][link['source']]['id'],
-                'target': json_topology['nodes'][link['target']]['id'],
-                'lhs_intf': link['lhs_intf'],
-                'rhs_intf': link['rhs_intf'],
-                #            'lhs_ip': link['lhs_ip'],
-                'lhs_ip': str((ipaddress.ip_interface(link['lhs_ip'])).ip),
-                #            'rhs_ip': link['rhs_ip']
-                'rhs_ip': str((ipaddress.ip_interface(link['rhs_ip'])).ip)
-            }
-            for link in json_topology['links']]
-        # Dump the topology
-        json.dump(json_topology, outfile, sort_keys=True, indent=2)
-    # Json dump of the routing
-    with open(ROUTING_FILE, 'w') as outfile:
-        json.dump(routes, outfile, sort_keys=True, indent=2)
-    # Dump for nodes.sh
-    with open(NODES_SH, 'w') as outfile:
-        # Create header
-        nodes = "declare -a NODES=("
-        # Iterate over management ips
-        for node, ip in node_to_mgmt.iteritems():
-            # Add the nodes one by one
-            nodes = nodes + "%s " % ip
-        # Eliminate last character
-        nodes = nodes[:-1] + ")\n"
-        # Write on the file
-        outfile.write(nodes)
-    # Json dump of the vnfs
-    with open(VNF_FILE, 'w') as outfile:
-        json.dump(nodes_to_vnfs, outfile, sort_keys=True, indent=2)
 
 # Utility function to shutdown the emulation
 def shutdown():
@@ -337,7 +289,6 @@ def shutdown():
 # Utility function to deploy Mininet topology
 def deploy(options):
     # Retrieves options
-    bw = options.bw
     controller = options.controller
     topologyFile = options.topology
     # Create routing
@@ -346,7 +297,6 @@ def deploy(options):
     setLogLevel('info')
     # Create Mininet topology
     topo = Abilene(
-        bw=bw,
         top=topologyFile
     )
     # Create Mininet net
@@ -372,8 +322,6 @@ def deploy(options):
         subnets = routes.get(host.name, [])
         # Configure v6 addresses
         host.configv6(interfaces_to_ip, default_via, subnets)
-    # Dump relevant information
-    dump()
     # Mininet CLI
     CLI(net)
     # Stop topology
@@ -382,9 +330,6 @@ def deploy(options):
 # Parse command line options and dump results
 def parseOptions():
     parser = OptionParser()
-    # Bandwidth for the links
-    parser.add_option('--bw', dest='bw', type='int', default=1,
-                      help='bandwidth for the links, default 1 Mb/s')
     # IP of RYU controller
     parser.add_option('--controller', dest='controller', type='string', default="127.0.0.1",
                       help='IP address of the Controlle instance')

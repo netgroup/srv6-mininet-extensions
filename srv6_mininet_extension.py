@@ -78,13 +78,13 @@ interfaces_to_ip = {}
 # Default via
 host_to_default_via = {}
 # Vnfs file
-VNF_FILE              = "../deployment/vnfs.json"
+VNF_FILE = "deployment/vnfs.json"
 # nodes.sh file for setup of the nodes
-NODES_SH              = "../deployment/nodes.sh"
+NODES_SH = "deployment/nodes.sh"
 # Routing file
-ROUTING_FILE          = "../deployment/routing.json"
+ROUTING_FILE = "deployment/routing.json"
 # Topology file
-TOPOLOGY_FILE         = "../deployment/topology.json"
+TOPOLOGY_FILE = "deployment/topology.json"
 # Management Mask
 MGMT_MASK = 64
 # Data plane Mask

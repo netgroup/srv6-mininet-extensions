@@ -77,6 +77,14 @@ topology = nx.MultiDiGraph()
 interfaces_to_ip = {}
 # Default via
 host_to_default_via = {}
+# Vnfs file
+VNF_FILE              = "../deployment/vnfs.json"
+# nodes.sh file for setup of the nodes
+NODES_SH              = "../deployment/nodes.sh"
+# Routing file
+ROUTING_FILE          = "../deployment/routing.json"
+# Topology file
+TOPOLOGY_FILE         = "../deployment/topology.json"
 # Management Mask
 MGMT_MASK = 64
 # Data plane Mask
@@ -109,13 +117,13 @@ class Abilene(Topo):
         mgmtPlaneNet = list(IPv6Network(mgmtPlaneSpace).subnets(new_prefix=MGMT_MASK))[0]
         mgmtPlaneHosts = mgmtPlaneNet.hosts()
 
-        # Define the switches representing the cities
+        # Define the routers representing the cities
         routers = topo.getRouters()
         # Define the host/servers representing the cities
         hosts = topo.getServers()
-        # Define the edge links connecting hosts and switches
+        # Define the edge links connecting hosts and routers
         edge_links = topo.getEdge()
-        # Define the core links connecting switches
+        # Define the core links connecting routers
         core_links = topo.getCore()
 
         # Iterate on the routers and generate them
@@ -278,6 +286,46 @@ class Abilene(Topo):
             # Map subnet to rhs
             subnets_to_via[str(net.exploded)].append(rhs)
 
+# Utility function to dump relevant information of the emulation
+def dump():
+  # Json dump of the topology
+  with open(TOPOLOGY_FILE, 'w') as outfile:
+    # Get json topology
+    json_topology = json_graph.node_link_data(topology)
+    # Convert links
+
+    json_topology['links'] = [
+        {
+            'source': json_topology['nodes'][link['source']]['id'],
+            'target': json_topology['nodes'][link['target']]['id'],
+            'lhs_intf': link['lhs_intf'],
+            'rhs_intf': link['rhs_intf'],
+#            'lhs_ip': link['lhs_ip'],
+            'lhs_ip': str((ipaddress.ip_interface(link['lhs_ip'])).ip),
+#            'rhs_ip': link['rhs_ip']
+            'rhs_ip': str((ipaddress.ip_interface(link['rhs_ip'])).ip)
+        }
+        for link in json_topology['links']]
+    # Dump the topology
+    json.dump(json_topology, outfile, sort_keys = True, indent = 2)
+  # Json dump of the routing
+  with open(ROUTING_FILE, 'w') as outfile:
+    json.dump(routes, outfile, sort_keys = True, indent = 2)
+  # Dump for nodes.sh
+  with open(NODES_SH, 'w') as outfile:
+    # Create header
+    nodes = "declare -a NODES=("
+    # Iterate over management ips
+    for node, ip in node_to_mgmt.iteritems():
+      # Add the nodes one by one
+      nodes = nodes + "%s " % ip
+    # Eliminate last character
+    nodes = nodes[:-1] + ")\n"
+    # Write on the file
+    outfile.write(nodes)
+    # Json dump of the vnfs
+  with open(VNF_FILE, 'w') as outfile:
+    json.dump(nodes_to_vnfs, outfile, sort_keys = True, indent = 2)
 
 # Utility function to shutdown the emulation
 def shutdown():
@@ -322,6 +370,8 @@ def deploy(options):
         subnets = routes.get(host.name, [])
         # Configure v6 addresses
         host.configv6(interfaces_to_ip, default_via, subnets)
+    # Dump relevant information
+    dump()
     # Mininet CLI
     CLI(net)
     # Stop topology

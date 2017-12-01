@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 #
-# Copyright (C) 2017 Pier Luigi Ventre, Stefano Salsano - (CNIT and University of Rome "Tor Vergata")
+# Copyright (C) 2017 Pier Luigi Ventre, Stefano Salsano, Alessandro Masci - (CNIT and University of Rome "Tor Vergata")
 #
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,7 @@
 #
 # @author Pier Luigi Ventre <pier.luigi.ventre@uniroma2.it>
 # @author Stefano Salsano <stefano.salsano@uniroma2.it>
+# @author Alessandro Masci <mascialessandro89@gmail.com>
 #
 
 from collections import defaultdict
@@ -84,13 +85,3 @@ class SPFRouting( object ):
         info("found " + gateway + "\n")
     # Done
     return routes 
-
-# Build equal cost multi path routing for the given topology
-class ECMPRouting( object ):
-
-  def routing(self, routes, topology, destinations, interfaces_to_ip):
-    # Init steps
-    shortest_paths  = {}
-    # Calculate all the shortest path for the given topology
-    paths           = nx.all_pairs_shortest_path(topology)
-    # TODO finish ecmp routing

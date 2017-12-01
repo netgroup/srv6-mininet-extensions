@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 #
-# Copyright (C) 2017 Pier Luigi Ventre, Stefano Salsano - (CNIT and University of Rome "Tor Vergata")
+# Copyright (C) 2017 Pier Luigi Ventre, Stefano Salsano, Alessandro Masci - (CNIT and University of Rome "Tor Vergata")
 #
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,7 @@
 #
 # @author Pier Luigi Ventre <pier.luigi.ventre@uniroma2.it>
 # @author Stefano Salsano <stefano.salsano@uniroma2.it>
+# @author Alessandro Masci <mascialessandro89@gmail.com>
 #
 
 # Mininet

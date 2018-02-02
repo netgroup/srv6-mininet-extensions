@@ -93,6 +93,10 @@ DP_MASK = 64
 DP_SPACE = 56
 # Vnf maks
 VNF_MASK = 128
+# LoopBack space
+LB_SPACE = 120
+# Loopback Mask
+LB_MASK = 128
 
 
 # Create Abilene topology and a management network for the hosts.
@@ -117,6 +121,10 @@ class Abilene(Topo):
         mgmtPlaneNet = list(IPv6Network(mgmtPlaneSpace).subnets(new_prefix=MGMT_MASK))[0]
         mgmtPlaneHosts = mgmtPlaneNet.hosts()
 
+        # Create subnetting objects for assigning loopback plane addresses
+        LoopbackPlaneSpace = unicode('2002::0/%d' % LB_SPACE)
+        LoopbackPlaneNets = list(IPv6Network(LoopbackPlaneSpace).hosts())
+
         # Define the routers representing the cities
         routers = topo.getRouters()
         # Define the host/servers representing the cities
@@ -130,18 +138,26 @@ class Abilene(Topo):
         for router in routers:
             # Assign mgmt plane IP
             mgmtIP = mgmtPlaneHosts.next()
+            # Assign loopback plane IP
+            loopbackIP = LoopbackPlaneNets.pop(0)
             # Add the router to the topology
             self.addHost(
                 name=router,
                 cls=IPHost,
                 sshd=True,
                 mgmtip="%s/%s" % (mgmtIP, MGMT_MASK),
+                loopbackip="%s/%s" % (loopbackIP, LB_MASK),
+                lb=True,
                 vnfips=[]
             )
             # Save mapping node to mgmt
             node_to_mgmt[router] = str(mgmtIP)
+            # loopback ip generated
+            loopbackip = "%s/%s" % (loopbackIP.exploded, LB_MASK)
+            # Save the destination
+            subnets_to_via[str(loopbackip)].append(router)
             # Add node to the topology graph
-            topology.add_node(router, mgmtip="%s/%s" % (mgmtIP, MGMT_MASK), type="router", group=200)
+            topology.add_node(router, mgmtip="%s/%s" % (mgmtIP, MGMT_MASK), loopbackip="%s/%s" % (loopbackIP, LB_MASK), type="router", group=200)
 
         # Create the mgmt switch
         br_mgmt = self.addSwitch('br-mgmt1', cls=OVSBridge)

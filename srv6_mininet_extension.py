@@ -51,7 +51,7 @@ import networkx as nx
 
 from networkx.readwrite import json_graph
 
-parser_path = "/home/user/workspace/Dreamer-Topology-Parser-and-Validator/"
+parser_path = "/home/user/workspace/dreamer-topology-parser-and-validator/"
 if parser_path == "":
     print "Error : Set parser_path variable in srv6_mininet_extension.py"
     sys.exit(-2)
@@ -194,6 +194,7 @@ class Abilene(Topo):
                 cls=IPHost,
                 sshd=True,
                 mgmtip="%s/%s" % (mgmtIP, MGMT_MASK),
+                lb=False,
                 vnfips=vnfips
             )
             # Save mapping node to mgmt
@@ -211,6 +212,7 @@ class Abilene(Topo):
             cls=IPHost,
             sshd=False,
             mgmtip="%s/%s" % (mgmtIP, MGMT_MASK),
+            lb=False,
             inNamespace=False
         )
         # Save mapping node to mgmt

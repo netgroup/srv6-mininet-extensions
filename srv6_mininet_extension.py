@@ -51,7 +51,9 @@ import networkx as nx
 
 from networkx.readwrite import json_graph
 
+
 parser_path = "/home/user/workspace/dreamer-topology-parser-and-validator/"
+
 if parser_path == "":
     print "Error : Set parser_path variable in srv6_mininet_extension.py"
     sys.exit(-2)
@@ -97,6 +99,7 @@ VNF_MASK = 128
 LB_SPACE = 120
 # Loopback Mask
 LB_MASK = 128
+
 
 
 # Create Abilene topology and a management network for the hosts.
@@ -158,6 +161,8 @@ class Abilene(Topo):
             subnets_to_via[str(loopbackip)].append(router)
             # Add node to the topology graph
             topology.add_node(router, mgmtip="%s/%s" % (mgmtIP, MGMT_MASK), loopbackip="%s/%s" % (loopbackIP, LB_MASK), type="router", group=200)
+            # Add node to the topology graph
+            topology.add_node(router, mgmtip="%s/%s" % (mgmtIP, MGMT_MASK), type="router", group=200)
 
         # Create the mgmt switch
         br_mgmt = self.addSwitch('br-mgmt1', cls=OVSBridge)

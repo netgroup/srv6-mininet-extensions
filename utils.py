@@ -51,6 +51,7 @@ class IPHost(Host):
     if kwargs['lb']:
       self.cmd('ip a a %s dev lo' %(kwargs['loopbackip']))
 
+
     #let's write the hostname in /var/mininet/hostname
     self.cmd("echo '" + self.name + "' > /var/mininet/hostname")
 

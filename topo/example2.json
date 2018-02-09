@@ -1,0 +1,75 @@
+{
+   "edges":[
+
+      {
+         "source":"nyc",
+         "target":"hnyc",
+         "group": "",
+         "view": "Data",
+         "type": "Edge"
+      },
+      {
+         "source":"chi",
+         "target":"hchi",
+         "group": "",
+         "view": "Data",
+         "type": "Edge"
+      },
+      {
+         "source":"nyc",
+         "target":"chi",
+         "group": "",
+         "view": "Data",
+         "type": "Core"
+      }
+
+   ],
+   "vertices":[
+     {
+      "info": {
+        "type": "Server",
+        "property": {
+          "vnf": 2
+        },
+        "group": [2]
+      },
+      "id": "hchi"
+     },
+     {
+      "info": {
+        "type": "Router",
+        "property": {
+           "vnf": 0
+        },
+        "group": [200]
+      },
+      "id": "nyc"
+     },
+     {
+      "info": {
+        "type": "Server",
+        "property": {
+          "vnf": 0
+        },
+        "group": [100]
+      },
+      "id": "hnyc"
+     },
+     {
+      "info": {
+        "type": "Router",
+        "property": {
+          "vnf": 0
+        },
+        "group": [200]
+      },
+      "id": "chi"
+     }
+
+   ],
+   "graph_parameters":{
+        "bw": 1,
+        "delay": 1000,
+        "testbed":"MININET"
+     }
+}

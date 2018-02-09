@@ -1,5 +1,6 @@
 # !/usr/bin/python
 
+
 # Copyright (C) 2017 Pier Luigi Ventre, Stefano Salsano, Alessandro Masci - (CNIT and University of Rome "Tor Vergata")
 #
 #
@@ -47,11 +48,15 @@ import os
 import json
 import sys
 
+from srv6_topo_parser import Srv6TopoParser
+
+
 import networkx as nx
 
 from networkx.readwrite import json_graph
 
-parser_path = "/home/user/workspace/Dreamer-Topology-Parser-and-Validator/"
+
+parser_path = "/home/user/workspace/dreamer-topology-parser-and-validator/"
 if parser_path == "":
     print "Error : Set parser_path variable in srv6_mininet_extension.py"
     sys.exit(-2)
@@ -60,8 +65,6 @@ if not os.path.exists(parser_path):
     sys.exit(-2)
 sys.path.append(parser_path)
 
-# Parser
-from srv6_topo_parser import Srv6TopoParser
 
 # Mapping host to vnfs
 nodes_to_vnfs = defaultdict(list)
@@ -98,6 +101,7 @@ VNF_MASK = 128
 # Create Abilene topology and a management network for the hosts.
 class Abilene(Topo):
     # Init of the topology
+
     def __init__(self, top="", **opts):
         # Init steps
         Topo.__init__(self, **opts)
@@ -117,6 +121,7 @@ class Abilene(Topo):
         mgmtPlaneNet = list(IPv6Network(mgmtPlaneSpace).subnets(new_prefix=MGMT_MASK))[0]
         mgmtPlaneHosts = mgmtPlaneNet.hosts()
 
+
         # Define the routers representing the cities
         routers = topo.getRouters()
         # Define the host/servers representing the cities
@@ -127,6 +132,7 @@ class Abilene(Topo):
         core_links = topo.getCore()
 
         # Iterate on the routers and generate them
+
         for router in routers:
             # Assign mgmt plane IP
             mgmtIP = mgmtPlaneHosts.next()
@@ -146,7 +152,9 @@ class Abilene(Topo):
         # Create the mgmt switch
         br_mgmt = self.addSwitch('br-mgmt1', cls=OVSBridge)
 
+
         # Iterate on the hosts and generate them
+
         for host in hosts:
             # Define host group
             group = 100
@@ -172,7 +180,9 @@ class Abilene(Topo):
                 nodes_to_vnfs[host] = vnfips
             # Assign mgmt plane IP
             mgmtIP = mgmtPlaneHosts.next()
+
             # Add the host to the topology
+
             self.addHost(
                 name=host,
                 cls=IPHost,
@@ -286,6 +296,7 @@ class Abilene(Topo):
             # Map subnet to rhs
             subnets_to_via[str(net.exploded)].append(rhs)
 
+
 # Utility function to dump relevant information of the emulation
 def dump():
   # Json dump of the topology
@@ -327,6 +338,7 @@ def dump():
   with open(VNF_FILE, 'w') as outfile:
     json.dump(nodes_to_vnfs, outfile, sort_keys = True, indent = 2)
 
+
 # Utility function to shutdown the emulation
 def shutdown():
     # Clean Mininet emulation environment
@@ -334,17 +346,20 @@ def shutdown():
     # Clean Mininet emulation environment
     os.system('sudo killall sshd')
 
+
 # Utility function to deploy Mininet topology
 def deploy(options):
     # Retrieves options
     controller = options.controller
     topologyFile = options.topology
+
     # Create routing
     routing = SPFRouting()
     # Set Mininet log level to info
     setLogLevel('info')
     # Create Mininet topology
     topo = Abilene(
+
         top=topologyFile
     )
     # Create Mininet net

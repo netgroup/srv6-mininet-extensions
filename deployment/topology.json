@@ -1,0 +1,552 @@
+{
+  "directed": true, 
+  "graph": [], 
+  "links": [
+    {
+      "lhs_intf": "sea-eth1", 
+      "lhs_ip": "2001:0:0:a::1", 
+      "rhs_intf": "hsea-eth1", 
+      "rhs_ip": "2001:0:0:a::2", 
+      "source": "sea", 
+      "target": "hsea"
+    }, 
+    {
+      "lhs_intf": "sea-eth3", 
+      "lhs_ip": "2001:0:0:17::1", 
+      "rhs_intf": "den-eth2", 
+      "rhs_ip": "2001:0:0:17::2", 
+      "source": "sea", 
+      "target": "den"
+    }, 
+    {
+      "lhs_intf": "sea-eth2", 
+      "lhs_ip": "2001:0:0:16::1", 
+      "rhs_intf": "sun-eth2", 
+      "rhs_ip": "2001:0:0:16::2", 
+      "source": "sea", 
+      "target": "sun"
+    }, 
+    {
+      "lhs_intf": "hchi-eth1", 
+      "lhs_ip": "2001:0:0:8::2", 
+      "rhs_intf": "chi-eth1", 
+      "rhs_ip": "2001:0:0:8::1", 
+      "source": "hchi", 
+      "target": "chi"
+    }, 
+    {
+      "lhs_intf": "hatl-eth1", 
+      "lhs_ip": "2001:0:0:10::2", 
+      "rhs_intf": "atl-eth1", 
+      "rhs_ip": "2001:0:0:10::1", 
+      "source": "hatl", 
+      "target": "atl"
+    }, 
+    {
+      "lhs_intf": "hsun-eth1", 
+      "lhs_ip": "2001:0:0:b::2", 
+      "rhs_intf": "sun-eth1", 
+      "rhs_ip": "2001:0:0:b::1", 
+      "source": "hsun", 
+      "target": "sun"
+    }, 
+    {
+      "lhs_intf": "ind-eth2", 
+      "lhs_ip": "2001:0:0:14::2", 
+      "rhs_intf": "chi-eth3", 
+      "rhs_ip": "2001:0:0:14::1", 
+      "source": "ind", 
+      "target": "chi"
+    }, 
+    {
+      "lhs_intf": "ind-eth4", 
+      "lhs_ip": "2001:0:0:1f::2", 
+      "rhs_intf": "atl-eth4", 
+      "rhs_ip": "2001:0:0:1f::1", 
+      "source": "ind", 
+      "target": "atl"
+    }, 
+    {
+      "lhs_intf": "ind-eth3", 
+      "lhs_ip": "2001:0:0:1d::2", 
+      "rhs_intf": "kan-eth4", 
+      "rhs_ip": "2001:0:0:1d::1", 
+      "source": "ind", 
+      "target": "kan"
+    }, 
+    {
+      "lhs_intf": "ind-eth1", 
+      "lhs_ip": "2001:0:0:11::1", 
+      "rhs_intf": "hind-eth1", 
+      "rhs_ip": "2001:0:0:11::2", 
+      "source": "ind", 
+      "target": "hind"
+    }, 
+    {
+      "lhs_intf": "sun-eth3", 
+      "lhs_ip": "2001:0:0:18::1", 
+      "rhs_intf": "lan-eth2", 
+      "rhs_ip": "2001:0:0:18::2", 
+      "source": "sun", 
+      "target": "lan"
+    }, 
+    {
+      "lhs_intf": "sun-eth4", 
+      "lhs_ip": "2001:0:0:19::1", 
+      "rhs_intf": "den-eth3", 
+      "rhs_ip": "2001:0:0:19::2", 
+      "source": "sun", 
+      "target": "den"
+    }, 
+    {
+      "lhs_intf": "sun-eth2", 
+      "lhs_ip": "2001:0:0:16::2", 
+      "rhs_intf": "sea-eth2", 
+      "rhs_ip": "2001:0:0:16::1", 
+      "source": "sun", 
+      "target": "sea"
+    }, 
+    {
+      "lhs_intf": "sun-eth1", 
+      "lhs_ip": "2001:0:0:b::1", 
+      "rhs_intf": "hsun-eth1", 
+      "rhs_ip": "2001:0:0:b::2", 
+      "source": "sun", 
+      "target": "hsun"
+    }, 
+    {
+      "lhs_intf": "hou-eth4", 
+      "lhs_ip": "2001:0:0:1e::1", 
+      "rhs_intf": "atl-eth3", 
+      "rhs_ip": "2001:0:0:1e::2", 
+      "source": "hou", 
+      "target": "atl"
+    }, 
+    {
+      "lhs_intf": "hou-eth2", 
+      "lhs_ip": "2001:0:0:1a::2", 
+      "rhs_intf": "lan-eth3", 
+      "rhs_ip": "2001:0:0:1a::1", 
+      "source": "hou", 
+      "target": "lan"
+    }, 
+    {
+      "lhs_intf": "hou-eth1", 
+      "lhs_ip": "2001:0:0:f::1", 
+      "rhs_intf": "hhou-eth1", 
+      "rhs_ip": "2001:0:0:f::2", 
+      "source": "hou", 
+      "target": "hhou"
+    }, 
+    {
+      "lhs_intf": "hou-eth3", 
+      "lhs_ip": "2001:0:0:1c::2", 
+      "rhs_intf": "kan-eth3", 
+      "rhs_ip": "2001:0:0:1c::1", 
+      "source": "hou", 
+      "target": "kan"
+    }, 
+    {
+      "lhs_intf": "hind-eth1", 
+      "lhs_ip": "2001:0:0:11::2", 
+      "rhs_intf": "ind-eth1", 
+      "rhs_ip": "2001:0:0:11::1", 
+      "source": "hind", 
+      "target": "ind"
+    }, 
+    {
+      "lhs_intf": "nyc-eth2", 
+      "lhs_ip": "2001:0:0:12::1", 
+      "rhs_intf": "chi-eth2", 
+      "rhs_ip": "2001:0:0:12::2", 
+      "source": "nyc", 
+      "target": "chi"
+    }, 
+    {
+      "lhs_intf": "nyc-eth3", 
+      "lhs_ip": "2001:0:0:13::1", 
+      "rhs_intf": "wdc-eth2", 
+      "rhs_ip": "2001:0:0:13::2", 
+      "source": "nyc", 
+      "target": "wdc"
+    }, 
+    {
+      "lhs_intf": "nyc-eth1", 
+      "lhs_ip": "2001:0:0:7::1", 
+      "rhs_intf": "hnyc-eth1", 
+      "rhs_ip": "2001:0:0:7::2", 
+      "source": "nyc", 
+      "target": "hnyc"
+    }, 
+    {
+      "lhs_intf": "hsea-eth1", 
+      "lhs_ip": "2001:0:0:a::2", 
+      "rhs_intf": "sea-eth1", 
+      "rhs_ip": "2001:0:0:a::1", 
+      "source": "hsea", 
+      "target": "sea"
+    }, 
+    {
+      "lhs_intf": "lan-eth2", 
+      "lhs_ip": "2001:0:0:18::2", 
+      "rhs_intf": "sun-eth3", 
+      "rhs_ip": "2001:0:0:18::1", 
+      "source": "lan", 
+      "target": "sun"
+    }, 
+    {
+      "lhs_intf": "lan-eth3", 
+      "lhs_ip": "2001:0:0:1a::1", 
+      "rhs_intf": "hou-eth2", 
+      "rhs_ip": "2001:0:0:1a::2", 
+      "source": "lan", 
+      "target": "hou"
+    }, 
+    {
+      "lhs_intf": "lan-eth1", 
+      "lhs_ip": "2001:0:0:c::1", 
+      "rhs_intf": "hlan-eth1", 
+      "rhs_ip": "2001:0:0:c::2", 
+      "source": "lan", 
+      "target": "hlan"
+    }, 
+    {
+      "lhs_intf": "kan-eth4", 
+      "lhs_ip": "2001:0:0:1d::1", 
+      "rhs_intf": "ind-eth3", 
+      "rhs_ip": "2001:0:0:1d::2", 
+      "source": "kan", 
+      "target": "ind"
+    }, 
+    {
+      "lhs_intf": "kan-eth1", 
+      "lhs_ip": "2001:0:0:e::1", 
+      "rhs_intf": "hkan-eth1", 
+      "rhs_ip": "2001:0:0:e::2", 
+      "source": "kan", 
+      "target": "hkan"
+    }, 
+    {
+      "lhs_intf": "kan-eth3", 
+      "lhs_ip": "2001:0:0:1c::1", 
+      "rhs_intf": "hou-eth3", 
+      "rhs_ip": "2001:0:0:1c::2", 
+      "source": "kan", 
+      "target": "hou"
+    }, 
+    {
+      "lhs_intf": "kan-eth2", 
+      "lhs_ip": "2001:0:0:1b::2", 
+      "rhs_intf": "den-eth4", 
+      "rhs_ip": "2001:0:0:1b::1", 
+      "source": "kan", 
+      "target": "den"
+    }, 
+    {
+      "lhs_intf": "hnyc-eth1", 
+      "lhs_ip": "2001:0:0:7::2", 
+      "rhs_intf": "nyc-eth1", 
+      "rhs_ip": "2001:0:0:7::1", 
+      "source": "hnyc", 
+      "target": "nyc"
+    }, 
+    {
+      "lhs_intf": "hkan-eth1", 
+      "lhs_ip": "2001:0:0:e::2", 
+      "rhs_intf": "kan-eth1", 
+      "rhs_ip": "2001:0:0:e::1", 
+      "source": "hkan", 
+      "target": "kan"
+    }, 
+    {
+      "lhs_intf": "wdc-eth2", 
+      "lhs_ip": "2001:0:0:13::2", 
+      "rhs_intf": "nyc-eth3", 
+      "rhs_ip": "2001:0:0:13::1", 
+      "source": "wdc", 
+      "target": "nyc"
+    }, 
+    {
+      "lhs_intf": "wdc-eth3", 
+      "lhs_ip": "2001:0:0:15::1", 
+      "rhs_intf": "atl-eth2", 
+      "rhs_ip": "2001:0:0:15::2", 
+      "source": "wdc", 
+      "target": "atl"
+    }, 
+    {
+      "lhs_intf": "wdc-eth1", 
+      "lhs_ip": "2001:0:0:9::1", 
+      "rhs_intf": "hwdc-eth1", 
+      "rhs_ip": "2001:0:0:9::2", 
+      "source": "wdc", 
+      "target": "hwdc"
+    }, 
+    {
+      "lhs_intf": "atl-eth4", 
+      "lhs_ip": "2001:0:0:1f::1", 
+      "rhs_intf": "ind-eth4", 
+      "rhs_ip": "2001:0:0:1f::2", 
+      "source": "atl", 
+      "target": "ind"
+    }, 
+    {
+      "lhs_intf": "atl-eth3", 
+      "lhs_ip": "2001:0:0:1e::2", 
+      "rhs_intf": "hou-eth4", 
+      "rhs_ip": "2001:0:0:1e::1", 
+      "source": "atl", 
+      "target": "hou"
+    }, 
+    {
+      "lhs_intf": "atl-eth2", 
+      "lhs_ip": "2001:0:0:15::2", 
+      "rhs_intf": "wdc-eth3", 
+      "rhs_ip": "2001:0:0:15::1", 
+      "source": "atl", 
+      "target": "wdc"
+    }, 
+    {
+      "lhs_intf": "atl-eth1", 
+      "lhs_ip": "2001:0:0:10::1", 
+      "rhs_intf": "hatl-eth1", 
+      "rhs_ip": "2001:0:0:10::2", 
+      "source": "atl", 
+      "target": "hatl"
+    }, 
+    {
+      "lhs_intf": "hhou-eth1", 
+      "lhs_ip": "2001:0:0:f::2", 
+      "rhs_intf": "hou-eth1", 
+      "rhs_ip": "2001:0:0:f::1", 
+      "source": "hhou", 
+      "target": "hou"
+    }, 
+    {
+      "lhs_intf": "den-eth1", 
+      "lhs_ip": "2001:0:0:d::1", 
+      "rhs_intf": "hden-eth1", 
+      "rhs_ip": "2001:0:0:d::2", 
+      "source": "den", 
+      "target": "hden"
+    }, 
+    {
+      "lhs_intf": "den-eth4", 
+      "lhs_ip": "2001:0:0:1b::1", 
+      "rhs_intf": "kan-eth2", 
+      "rhs_ip": "2001:0:0:1b::2", 
+      "source": "den", 
+      "target": "kan"
+    }, 
+    {
+      "lhs_intf": "den-eth2", 
+      "lhs_ip": "2001:0:0:17::2", 
+      "rhs_intf": "sea-eth3", 
+      "rhs_ip": "2001:0:0:17::1", 
+      "source": "den", 
+      "target": "sea"
+    }, 
+    {
+      "lhs_intf": "den-eth3", 
+      "lhs_ip": "2001:0:0:19::2", 
+      "rhs_intf": "sun-eth4", 
+      "rhs_ip": "2001:0:0:19::1", 
+      "source": "den", 
+      "target": "sun"
+    }, 
+    {
+      "lhs_intf": "chi-eth3", 
+      "lhs_ip": "2001:0:0:14::1", 
+      "rhs_intf": "ind-eth2", 
+      "rhs_ip": "2001:0:0:14::2", 
+      "source": "chi", 
+      "target": "ind"
+    }, 
+    {
+      "lhs_intf": "chi-eth2", 
+      "lhs_ip": "2001:0:0:12::2", 
+      "rhs_intf": "nyc-eth2", 
+      "rhs_ip": "2001:0:0:12::1", 
+      "source": "chi", 
+      "target": "nyc"
+    }, 
+    {
+      "lhs_intf": "chi-eth1", 
+      "lhs_ip": "2001:0:0:8::1", 
+      "rhs_intf": "hchi-eth1", 
+      "rhs_ip": "2001:0:0:8::2", 
+      "source": "chi", 
+      "target": "hchi"
+    }, 
+    {
+      "lhs_intf": "hden-eth1", 
+      "lhs_ip": "2001:0:0:d::2", 
+      "rhs_intf": "den-eth1", 
+      "rhs_ip": "2001:0:0:d::1", 
+      "source": "hden", 
+      "target": "den"
+    }, 
+    {
+      "lhs_intf": "hwdc-eth1", 
+      "lhs_ip": "2001:0:0:9::2", 
+      "rhs_intf": "wdc-eth1", 
+      "rhs_ip": "2001:0:0:9::1", 
+      "source": "hwdc", 
+      "target": "wdc"
+    }, 
+    {
+      "lhs_intf": "hlan-eth1", 
+      "lhs_ip": "2001:0:0:c::2", 
+      "rhs_intf": "lan-eth1", 
+      "rhs_ip": "2001:0:0:c::1", 
+      "source": "hlan", 
+      "target": "lan"
+    }
+  ], 
+  "multigraph": true, 
+  "nodes": [
+    {
+      "group": 200, 
+      "id": "sea", 
+      "loopbackip": "2002::1/128", 
+      "mgmtip": "2000::1/64", 
+      "type": "router"
+    }, 
+    {
+      "group": 2, 
+      "id": "hchi", 
+      "mgmtip": "2000::c/64", 
+      "type": "server"
+    }, 
+    {
+      "group": 100, 
+      "id": "hatl", 
+      "mgmtip": "2000::d/64", 
+      "type": "server"
+    }, 
+    {
+      "group": 3, 
+      "id": "hsun", 
+      "mgmtip": "2000::e/64", 
+      "type": "server"
+    }, 
+    {
+      "group": 200, 
+      "id": "ind", 
+      "loopbackip": "2002::2/128", 
+      "mgmtip": "2000::2/64", 
+      "type": "router"
+    }, 
+    {
+      "group": 200, 
+      "id": "sun", 
+      "loopbackip": "2002::3/128", 
+      "mgmtip": "2000::3/64", 
+      "type": "router"
+    }, 
+    {
+      "group": 200, 
+      "id": "hou", 
+      "loopbackip": "2002::4/128", 
+      "mgmtip": "2000::4/64", 
+      "type": "router"
+    }, 
+    {
+      "group": 100, 
+      "id": "hind", 
+      "mgmtip": "2000::f/64", 
+      "type": "server"
+    }, 
+    {
+      "group": 200, 
+      "id": "nyc", 
+      "loopbackip": "2002::5/128", 
+      "mgmtip": "2000::5/64", 
+      "type": "router"
+    }, 
+    {
+      "group": 2, 
+      "id": "hsea", 
+      "mgmtip": "2000::10/64", 
+      "type": "server"
+    }, 
+    {
+      "group": 200, 
+      "id": "lan", 
+      "loopbackip": "2002::6/128", 
+      "mgmtip": "2000::6/64", 
+      "type": "router"
+    }, 
+    {
+      "group": 200, 
+      "id": "kan", 
+      "loopbackip": "2002::7/128", 
+      "mgmtip": "2000::7/64", 
+      "type": "router"
+    }, 
+    {
+      "group": 100, 
+      "id": "hnyc", 
+      "mgmtip": "2000::11/64", 
+      "type": "server"
+    }, 
+    {
+      "group": 100, 
+      "id": "hkan", 
+      "mgmtip": "2000::12/64", 
+      "type": "server"
+    }, 
+    {
+      "group": 200, 
+      "id": "wdc", 
+      "loopbackip": "2002::8/128", 
+      "mgmtip": "2000::8/64", 
+      "type": "router"
+    }, 
+    {
+      "group": 200, 
+      "id": "atl", 
+      "loopbackip": "2002::9/128", 
+      "mgmtip": "2000::9/64", 
+      "type": "router"
+    }, 
+    {
+      "group": 4, 
+      "id": "hhou", 
+      "mgmtip": "2000::13/64", 
+      "type": "server"
+    }, 
+    {
+      "group": 200, 
+      "id": "den", 
+      "loopbackip": "2002::a/128", 
+      "mgmtip": "2000::a/64", 
+      "type": "router"
+    }, 
+    {
+      "group": 200, 
+      "id": "chi", 
+      "loopbackip": "2002::b/128", 
+      "mgmtip": "2000::b/64", 
+      "type": "router"
+    }, 
+    {
+      "group": 4, 
+      "id": "hden", 
+      "mgmtip": "2000::14/64", 
+      "type": "server"
+    }, 
+    {
+      "group": 3, 
+      "id": "hwdc", 
+      "mgmtip": "2000::15/64", 
+      "type": "server"
+    }, 
+    {
+      "group": 4, 
+      "id": "hlan", 
+      "mgmtip": "2000::16/64", 
+      "type": "server"
+    }
+  ]
+}

@@ -48,9 +48,8 @@ class IPHost(Host):
         first = False
         self.cmd('ip a a %s dev %s' %(kwargs['mgmtip'], intf.name))
     # Configure the loopback address
-    if kwargs['lb']:
+    if kwargs.get('loopbackip',None):
       self.cmd('ip a a %s dev lo' %(kwargs['loopbackip']))
-
 
     #let's write the hostname in /var/mininet/hostname
     self.cmd("echo '" + self.name + "' > /var/mininet/hostname")

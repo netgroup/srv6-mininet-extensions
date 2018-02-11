@@ -48,13 +48,9 @@ import os
 import json
 import sys
 
-from srv6_topo_parser import Srv6TopoParser
-
-
 import networkx as nx
 
 from networkx.readwrite import json_graph
-
 
 parser_path = "/home/user/workspace/dreamer-topology-parser-and-validator/"
 
@@ -66,6 +62,7 @@ if not os.path.exists(parser_path):
     sys.exit(-2)
 sys.path.append(parser_path)
 
+from srv6_topo_parser import Srv6TopoParser
 
 # Mapping host to vnfs
 nodes_to_vnfs = defaultdict(list)
@@ -107,7 +104,6 @@ LB_MASK = 128
 # Create Abilene topology and a management network for the hosts.
 class Abilene(Topo):
     # Init of the topology
-
     def __init__(self, top="", **opts):
         # Init steps
         Topo.__init__(self, **opts)
@@ -131,7 +127,6 @@ class Abilene(Topo):
         LoopbackPlaneSpace = unicode('2002::0/%d' % LB_SPACE)
         LoopbackPlaneNets = list(IPv6Network(LoopbackPlaneSpace).hosts())
 
-
         # Define the routers representing the cities
         routers = topo.getRouters()
         # Define the host/servers representing the cities
@@ -142,7 +137,6 @@ class Abilene(Topo):
         core_links = topo.getCore()
 
         # Iterate on the routers and generate them
-
         for router in routers:
             # Assign mgmt plane IP
             mgmtIP = mgmtPlaneHosts.next()
@@ -155,7 +149,6 @@ class Abilene(Topo):
                 sshd=True,
                 mgmtip="%s/%s" % (mgmtIP, MGMT_MASK),
                 loopbackip="%s/%s" % (loopbackIP, LB_MASK),
-                lb=True,
                 vnfips=[]
             )
             # Save mapping node to mgmt
@@ -174,7 +167,6 @@ class Abilene(Topo):
 
 
         # Iterate on the hosts and generate them
-
         for host in hosts:
             # Define host group
             group = 100
@@ -202,13 +194,11 @@ class Abilene(Topo):
             mgmtIP = mgmtPlaneHosts.next()
 
             # Add the host to the topology
-
             self.addHost(
                 name=host,
                 cls=IPHost,
                 sshd=True,
                 mgmtip="%s/%s" % (mgmtIP, MGMT_MASK),
-                lb=False,
                 vnfips=vnfips
             )
             # Save mapping node to mgmt
@@ -226,7 +216,6 @@ class Abilene(Topo):
             cls=IPHost,
             sshd=False,
             mgmtip="%s/%s" % (mgmtIP, MGMT_MASK),
-            lb=False,
             inNamespace=False
         )
         # Save mapping node to mgmt
@@ -326,7 +315,6 @@ def dump():
     # Get json topology
     json_topology = json_graph.node_link_data(topology)
     # Convert links
-
     json_topology['links'] = [
         {
             'source': json_topology['nodes'][link['source']]['id'],
@@ -374,14 +362,12 @@ def deploy(options):
     # Retrieves options
     controller = options.controller
     topologyFile = options.topology
-
     # Create routing
     routing = SPFRouting()
     # Set Mininet log level to info
     setLogLevel('info')
     # Create Mininet topology
     topo = Abilene(
-
         top=topologyFile
     )
     # Create Mininet net

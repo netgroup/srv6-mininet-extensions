@@ -1,4 +1,4 @@
-# !/usr/bin/python
+#!/usr/bin/python
 
 
 # Copyright (C) 2017 Pier Luigi Ventre, Stefano Salsano, Alessandro Masci - (CNIT and University of Rome "Tor Vergata")

@@ -1,15 +1,38 @@
 # SRv6 Mininet extensions  #
 
-This projects is for creating mininet networks to emulate SRv6 
+This project is for creating mininet networks to emulate SRv6 
+
+### Prerequisite ###
+
+This project depends on Dreamer-Topology-Parser
+
+    > cd /home/user/workspace/
+    > git clone https://pierventre@bitbucket.org/ssalsano/dreamer-topology-parser-and-validator.git
+
+Then it is necessary to properly set the path in the srv6-mininet-extensions project
+
+    > cd /home/user/workspace/srv6-mininet-extensions
+    > parser_path = "/home/user/workspace/dreamer-topology-parser-and-validator/"
 
 ### Run an example experiment ###
 
-    > cd /home/user/workspace/srv6-mantoo
-    > git pull
-    > cd mininet
-    > ./start.sh
+    > cd /home/user/workspace/srv6-mininet-extensions
 
-now you have started the topology defined in the file abilene.py (11 routers and 11 servers):
+--help for usage options
+
+    Usage: srv6_mininet_extension.py [options]
+
+    Options:
+    -h, --help            show this help message and exit
+    --controller=CONTROLLER
+                        IP address of the Controlle instance
+    --topology=TOPOLOGY   Topology file
+
+You can started a topology just providing a topology file (relative path)
+
+    > sudo ./srv6_mininet_extensions.py --topology topo/example_srv6_topology.json
+
+now you have started the topology defined in the file example_srv6_topology.json.json (11 routers and 11 servers):
 
     # Define the routers representing the cities
     routers = ['nyc', 'chi', 'wdc', 'sea', 'sun', 'lan', 'den', 'kan', 'hou', 'atl', 'ind']
@@ -19,7 +42,7 @@ now you have started the topology defined in the file abilene.py (11 routers and
 
 The file topology.json in the deployment folder provides the topology with IPv6 addresses: 
 
-    > cat /home/user/workspace/srv6-mantoo/deployment/topology.json
+    > cat /home/user/workspace/srv6-mininet-extensions/deployment/topology.json
 
 for example:
 

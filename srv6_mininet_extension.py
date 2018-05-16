@@ -49,23 +49,10 @@ import json
 import sys
 
 import networkx as nx
-
 from networkx.readwrite import json_graph
 
-parser_path = "/home/user/workspace/dreamer-topology-parser-and-validator/"
+from srv6_topo_parser import SRv6TopoParser
 
-if parser_path == "":
-    print "Error : Set parser_path variable in srv6_mininet_extension.py"
-    sys.exit(-2)
-if not os.path.exists(parser_path):
-    error("Error : parser_path variable in srv6_mininet_extension.py points to a non existing folder\n")
-    sys.exit(-2)
-sys.path.append(parser_path)
-
-from srv6_topo_parser import Srv6TopoParser
-
-# Mapping host to vnfs
-nodes_to_vnfs = defaultdict(list)
 # Mapping node to management address
 node_to_mgmt = {}
 # Routes computed by the routing function
@@ -78,8 +65,6 @@ topology = nx.MultiDiGraph()
 interfaces_to_ip = {}
 # Default via
 host_to_default_via = {}
-# Vnfs file
-VNF_FILE = "deployment/vnfs.json"
 # nodes.sh file for setup of the nodes
 NODES_SH = "deployment/nodes.sh"
 # Routing file
@@ -92,26 +77,20 @@ MGMT_MASK = 64
 DP_MASK = 64
 # Data plane soace
 DP_SPACE = 56
-# Vnf maks
-VNF_MASK = 128
 # LoopBack space
 LB_SPACE = 120
 # Loopback Mask
 LB_MASK = 128
 
-
-# Create Abilene topology and a management network for the hosts.
-class Abilene(Topo):
+# Create SRv6 topology and a management network for the hosts.
+class SRv6Topo(Topo):
     # Init of the topology
-    def __init__(self, top="", **opts):
+    def __init__(self, topo="", **opts):
         # Init steps
         Topo.__init__(self, **opts)
        
         # Retrieves topology from json file
-        topo = Srv6TopoParser(top, verbose=False, version=2)
-
-        # We are going to use bw constrained links
-        linkopts = dict(bw=1, delay=1000)
+        topo = SRv6TopoParser(topo, verbose=False)
 
         # Create subnetting objects for assigning data plane addresses
         dataPlaneSpace = unicode('2001::0/%d' % DP_SPACE)
@@ -128,12 +107,9 @@ class Abilene(Topo):
 
         # Define the routers representing the cities
         routers = topo.getRouters()
-        # Define the host/servers representing the cities
-        hosts = topo.getServers()
-        # Define the edge links connecting hosts and routers
-        edge_links = topo.getEdge()
         # Define the core links connecting routers
-        core_links = topo.getCore()
+        core_links = topo.getCoreLinks()
+        core_links_properties = topo.getCoreLinksProperties()
 
         # Iterate on the routers and generate them
         for router in routers:
@@ -141,143 +117,50 @@ class Abilene(Topo):
             mgmtIP = mgmtPlaneHosts.next()
             # Assign loopback plane IP
             loopbackIP = LoopbackPlaneNets.pop(0)
+            # loopback and mgmt ips are generated
+            loopbackip = "%s/%s" % (loopbackIP, LB_MASK)
+            mgmtip = "%s/%s" % (mgmtIP, MGMT_MASK)
             # Add the router to the topology
-            self.addHost(
-                name=router,
-                cls=IPHost,
-                sshd=True,
-                mgmtip="%s/%s" % (mgmtIP, MGMT_MASK),
-                loopbackip="%s/%s" % (loopbackIP, LB_MASK),
-                vnfips=[]
-            )
+            self.addHost(name=router, cls=IPHost, sshd=True, mgmtip=mgmtip,
+                loopbackip=loopbackip)
             # Save mapping node to mgmt
             node_to_mgmt[router] = str(mgmtIP)
-            # loopback ip generated
-            loopbackip = "%s/%s" % (loopbackIP.exploded, LB_MASK)
             # Save the destination
             subnets_to_via[str(loopbackip)].append(router)
             # Add node to the topology graph
-            topology.add_node(router, mgmtip="%s/%s" % (mgmtIP, MGMT_MASK), loopbackip="%s/%s" % (loopbackIP, LB_MASK), type="router", group=200)
-            # Add node to the topology graph
-            topology.add_node(router, mgmtip="%s/%s" % (mgmtIP, MGMT_MASK), type="router", group=200)
+            topology.add_node(router, mgmtip=mgmtip , loopbackip=loopbackip,
+                type="router")
 
         # Create the mgmt switch
-        br_mgmt = self.addSwitch('br-mgmt1', cls=OVSBridge)
-
-        # Iterate on the hosts and generate them
-        for host in hosts:
-            # Define host group
-            group = 100
-            # Get the assinged vnfs
-            host_vnfs = topo.getVnf(host)
-            # Create an empty list
-            vnfips = []
-            # If the host has assigned vnfs
-            if host_vnfs > 0:
-                # Update group
-                group = host_vnfs
-                # Assign a data-plane net to the host
-                net = dataPlaneNets.pop(0)
-                # Get hosts iterator
-                host_ips = net.hosts()
-                # Iterate over the number of vnfs
-                for index in range(host_vnfs):
-                    # Add the ip to the set
-                    vnfips.append("%s/%d" % (host_ips.next().exploded, VNF_MASK))
-                # Save the destination
-                subnets_to_via[str(net.exploded)].append(host)
-                # Save the mapping nodes to vnfs
-                nodes_to_vnfs[host] = vnfips
-            # Assign mgmt plane IP
-            mgmtIP = mgmtPlaneHosts.next()
-
-            # Add the host to the topology
-            self.addHost(
-                name=host,
-                cls=IPHost,
-                sshd=True,
-                mgmtip="%s/%s" % (mgmtIP, MGMT_MASK),
-                vnfips=vnfips
-            )
-            # Save mapping node to mgmt
-            node_to_mgmt[host] = str(mgmtIP)
-            # Add node to the topology graph
-            topology.add_node(host, mgmtip="%s/%s" % (mgmtIP, MGMT_MASK), type="server", group=group)
+        br_mgmt = self.addSwitch(name='br-mgmt1', cls=OVSBridge)
 
         # Assign the mgmt ip to the mgmt station
         mgmtIP = mgmtPlaneHosts.next()
+        mgmtip = "%s/%s" % (mgmtIP, MGMT_MASK)
         # Mgmt name
-        mgmt = 'mgt'
+        mgmt = 'mgmt'
         # Create the mgmt node in the root namespace
-        self.addHost(
-            name=mgmt,
-            cls=IPHost,
-            sshd=False,
-            mgmtip="%s/%s" % (mgmtIP, MGMT_MASK),
-            inNamespace=False
-        )
-        # Save mapping node to mgmt
+        self.addHost(name=mgmt, cls=IPHost, sshd=False, mgmtip=mgmtip,
+            inNamespace=False)
         node_to_mgmt[mgmt] = str(mgmtIP)
-        # Store mgmt in hosts
-        hosts.append(mgmt)
+        # Create a link between mgmt switch and mgmt station
+        self.addLink(mgmt, br_mgmt, bw=1000, delay=0)
 
         # Connect all the routers to the management network
         for router in routers:
             # Create a link between mgmt switch and the router
-            self.addLink(router, br_mgmt, **linkopts)
-            portNumber = self.port(router, br_mgmt)
-
-        # Connect all the hosts/servers to the management network
-        for host in hosts:
-            # Create a link between mgmt switch and the host
-            self.addLink(host, br_mgmt, **linkopts)
-            portNumber = self.port(host, br_mgmt)
-
-        # Iterate over the edge links and generate them
-        for edge_link in edge_links:
-            # The router is the left hand side of the pair
-            router = edge_link[0]
-            # The host is the right hand side of the pair
-            host = edge_link[1]
-            # Create the edge link
-            self.addLink(router, host, **linkopts)
-            # Get Port number
-            portNumber = self.port(router, host)
-            # Create lhs_intf
-            lhs_intf = "%s-eth%d" % (router, portNumber[0])
-            # Create rhs_intf
-            rhs_intf = "%s-eth%d" % (host, portNumber[1])
-            # Assign a data-plane net to this link
-            net = dataPlaneNets.pop(0)
-            # Get hosts on this subnet
-            host_ips = net.hosts()
-            # Get the default via
-            default_via = "%s/%d" % (host_ips.next().exploded, DP_MASK)
-            # Get the host ip
-            host_ip = "%s/%d" % (host_ips.next().exploded, DP_MASK)
-            # Map lhs_intf to ip
-            interfaces_to_ip[lhs_intf] = default_via
-            # Map rhs_intf to ip
-            interfaces_to_ip[rhs_intf] = host_ip
-            # Map host to default via
-            host_to_default_via[host] = default_via
-            # Add edge to the topology
-            topology.add_edge(router, host, lhs_intf=lhs_intf, rhs_intf=rhs_intf, lhs_ip=default_via, rhs_ip=host_ip)
-            # Add reverse edge to the topology
-            topology.add_edge(host, router, lhs_intf=rhs_intf, rhs_intf=lhs_intf, lhs_ip=host_ip, rhs_ip=default_via)
-            # Map subnets to router
-            subnets_to_via[str(net.exploded)].append(router)
-            # Map subnets to router
-            subnets_to_via[str(net.exploded)].append(host)
+            self.addLink(router, br_mgmt, bw=1000, delay=0)
+            self.port(router, br_mgmt)
 
         # Iterate over the core links and generate them
-        for core_link in core_links:
+        for core_link, core_link_property in zip(core_links, core_links_properties):
             # Get the left hand side of the pair
             lhs = core_link[0]
             # Get the right hand side of the pair
             rhs = core_link[1]
             # Create the core link
-            self.addLink(lhs, rhs, **linkopts)
+            self.addLink(lhs, rhs, bw=core_link_property['bw'],
+                delay=core_link_property['delay'])
             # Get Port number
             portNumber = self.port(lhs, rhs)
             # Create lhs_intf
@@ -289,9 +172,9 @@ class Abilene(Topo):
             # Get hosts on this subnet
             host_ips = net.hosts()
             # Get lhs_ip
-            lhs_ip = "%s/%d" % (host_ips.next().exploded, DP_MASK)
+            lhs_ip = "%s/%d" % (host_ips.next(), DP_MASK)
             # Get rhs_ip
-            rhs_ip = "%s/%d" % (host_ips.next().exploded, DP_MASK)
+            rhs_ip = "%s/%d" % (host_ips.next(), DP_MASK)
             # Map lhs_intf to ip
             interfaces_to_ip[lhs_intf] = lhs_ip
             # Map rhs_intf to ip
@@ -301,9 +184,9 @@ class Abilene(Topo):
             # Add the reverse edge to the topology
             topology.add_edge(rhs, lhs, lhs_intf=rhs_intf, rhs_intf=lhs_intf, lhs_ip=rhs_ip, rhs_ip=lhs_ip)
             # Map subnet to lhs
-            subnets_to_via[str(net.exploded)].append(lhs)
+            subnets_to_via[str(net)].append(lhs)
             # Map subnet to rhs
-            subnets_to_via[str(net.exploded)].append(rhs)
+            subnets_to_via[str(net)].append(rhs)
 
 # Utility function to dump relevant information of the emulation
 def dump():
@@ -318,9 +201,7 @@ def dump():
             'target': json_topology['nodes'][link['target']]['id'],
             'lhs_intf': link['lhs_intf'],
             'rhs_intf': link['rhs_intf'],
-#            'lhs_ip': link['lhs_ip'],
             'lhs_ip': str((ipaddress.ip_interface(link['lhs_ip'])).ip),
-#            'rhs_ip': link['rhs_ip']
             'rhs_ip': str((ipaddress.ip_interface(link['rhs_ip'])).ip)
         }
         for link in json_topology['links']]
@@ -341,9 +222,6 @@ def dump():
     nodes = nodes[:-1] + ")\n"
     # Write on the file
     outfile.write(nodes)
-    # Json dump of the vnfs
-  with open(VNF_FILE, 'w') as outfile:
-    json.dump(nodes_to_vnfs, outfile, sort_keys = True, indent = 2)
 
 # Utility function to shutdown the emulation
 def shutdown():
@@ -362,16 +240,10 @@ def deploy(options):
     # Set Mininet log level to info
     setLogLevel('info')
     # Create Mininet topology
-    topo = Abilene(
-        top=topologyFile
-    )
+    topo = SRv6Topo(topo=topologyFile)
     # Create Mininet net
-    net = Mininet(
-        topo=topo,
-        link=TCLink,
-        build=False,
-        controller=None,
-    )
+    net = Mininet(topo=topo, link=TCLink,
+        build=False, controller=None)
     # Add manually external controller
     net.addController("c0", controller=RemoteController, ip=controller)
     # Build topology
@@ -402,7 +274,7 @@ def parseOptions():
     parser.add_option('--controller', dest='controller', type='string', default="127.0.0.1",
                       help='IP address of the Controlle instance')
     # Topology json file
-    parser.add_option('--topology', dest='topology', type='string', default="example_network_abilene.json",
+    parser.add_option('--topology', dest='topology', type='string', default="example_srv6_topology.json",
                       help='Topology file')
     # Parse input parameters
     (options, args) = parser.parse_args()

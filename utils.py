@@ -50,20 +50,12 @@ class IPHost(Host):
     # Configure the loopback address
     if kwargs.get('loopbackip',None):
       self.cmd('ip a a %s dev lo' %(kwargs['loopbackip']))
-
     #let's write the hostname in /var/mininet/hostname
     self.cmd("echo '" + self.name + "' > /var/mininet/hostname")
-
-    #self.cmd('ip a a %s dev %s' %(kwargs['mgmtip'], intf.name))
-
     # If requested
     if kwargs['sshd']:
       # Let's start sshd daemon in the hosts
       self.cmd('/usr/sbin/sshd -D &')
-      # Iterate over the vnf ips
-      for vnfip in kwargs['vnfips']:
-        # Assign addresses to the loopback
-        self.cmd('ip a a %s dev lo' %(vnfip))
 
   def configv6(self, interfaces_to_ip, default_via, subnets):
     # Enable IPv6 forwarding

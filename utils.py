@@ -1,9 +1,12 @@
 #!/usr/bin/python
 
+##############################################################################################
+# Copyright (C) 2017 Pier Luigi Ventre - (CNIT and University of Rome "Tor Vergata")
+# Copyright (C) 2017 Stefano Salsano - (CNIT and University of Rome "Tor Vergata")
+# Copyright (C) 2017 Alessandro Masci - (University of Rome "Tor Vergata")
+# www.uniroma2.it/netgroup - www.cnit.it
 #
-# Copyright (C) 2017 Pier Luigi Ventre, Stefano Salsano, Alessandro Masci - (CNIT and University of Rome "Tor Vergata")
 #
-# 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -16,16 +19,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# New mininet abstractions.
+# Utils for Segment Routing IPv6
 #
-# @author Pier Luigi Ventre <pier.luigi.ventre@uniroma2.it>
+# @author Pier Luigi Ventre <pierventre@hotmail.com>
 # @author Stefano Salsano <stefano.salsano@uniroma2.it>
 # @author Alessandro Masci <mascialessandro89@gmail.com>
-#
 
 # Mininet
-from mininet.node import Host, OVSSwitch
-
+from mininet.node import Host
+# General imports
 import re
 
 # Abstraction to model an augmented Host with a default via

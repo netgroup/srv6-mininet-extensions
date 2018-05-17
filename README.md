@@ -1,6 +1,6 @@
 # SRv6 Mininet extensions  #
 
-This project creates Mininet networks for testing of SRv6 technology
+This project creates Mininet networks for testing the SRv6 technology
 
 ### Prerequisite ###
 
@@ -11,21 +11,21 @@ This project depends on [Dreamer Topology Parser and Validator](https://github.c
 
 ### Run an example experiment ###
 
-**--help** for usage options
+**--help** for usage options:
 
     Usage: srv6_mininet_extension.py [options]
 
     Options:
     -h, --help            show this help message and exit
     --controller=CONTROLLER
-                        IP address of the Controlle instance
+                        IP address of the Controller instance
     --topology=TOPOLOGY   Topology file
 
-You can started a topology just providing a topology file (relative path)
+You can started a topology just providing a topology file (relative path):
 
     > sudo ./srv6_mininet_extensions.py --topology topo/example_srv6_topology.json
 
-now you have started the topology defined in the file example_srv6_topology.json.json (3 SRv6 routers):
+now you have started the topology defined in the file example_srv6_topology.json.json (3 SRv6 routers)
 
 The file topology.json in the deployment folder provides a dump of the topology with IPv6 addresses: 
 

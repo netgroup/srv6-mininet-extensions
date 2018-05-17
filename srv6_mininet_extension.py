@@ -1,7 +1,10 @@
 #!/usr/bin/python
 
-
-# Copyright (C) 2017 Pier Luigi Ventre, Stefano Salsano, Alessandro Masci - (CNIT and University of Rome "Tor Vergata")
+##############################################################################################
+# Copyright (C) 2017 Pier Luigi Ventre - (CNIT and University of Rome "Tor Vergata")
+# Copyright (C) 2017 Stefano Salsano - (CNIT and University of Rome "Tor Vergata")
+# Copyright (C) 2017 Alessandro Masci - (University of Rome "Tor Vergata")
+# www.uniroma2.it/netgroup - www.cnit.it
 #
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +19,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Deployment script for Mininet.
+# Mininet scripts for Segment Routing IPv6
 #
-# @author Pier Luigi Ventre <pier.luigi.ventre@uniroma2.it>
+# @author Pier Luigi Ventre <pierventre@hotmail.com.com>
 # @author Stefano Salsano <stefano.salsano@uniroma2.it>
 # @author Alessandro Masci <mascialessandro89@gmail.com>
-#
 
 from optparse import OptionParser
 import argparse
@@ -66,11 +68,11 @@ interfaces_to_ip = {}
 # Default via
 host_to_default_via = {}
 # nodes.sh file for setup of the nodes
-NODES_SH = "deployment/nodes.sh"
+NODES_SH = "/tmp/nodes.sh"
 # Routing file
-ROUTING_FILE = "deployment/routing.json"
+ROUTING_FILE = "/tmp/routing.json"
 # Topology file
-TOPOLOGY_FILE = "deployment/topology.json"
+TOPOLOGY_FILE = "/tmp/topology.json"
 # Management Mask
 MGMT_MASK = 64
 # Data plane Mask
@@ -229,12 +231,19 @@ def shutdown():
     os.system('sudo mn -c')
     # Clean Mininet emulation environment
     os.system('sudo killall sshd')
+    os.system('service sshd restart')
 
 # Utility function to deploy Mininet topology
 def deploy(options):
     # Retrieves options
     controller = options.controller
     topologyFile = options.topology
+    clean_all = options.clean_all
+    no_cli = options.no_cli
+    # Clean all - clean and exit
+    if clean_all:
+        shutdown()
+        return
     # Create routing
     routing = SPFRouting()
     # Set Mininet log level to info
@@ -262,10 +271,12 @@ def deploy(options):
         host.configv6(interfaces_to_ip, default_via, subnets)
     # Dump relevant information
     dump()
-    # Mininet CLI
-    CLI(net)
-    # Stop topology
-    net.stop()
+    # Show Mininet prompt
+    if not no_cli:
+        # Mininet CLI
+        CLI(net)
+        # Stop topology
+        net.stop()
 
 # Parse command line options and dump results
 def parseOptions():
@@ -276,6 +287,10 @@ def parseOptions():
     # Topology json file
     parser.add_option('--topology', dest='topology', type='string', default="example_srv6_topology.json",
                       help='Topology file')
+    # Clean all useful for rdcl stop action
+    parser.add_option('--stop-all', dest='clean_all',action='store_true', help='Clean all mininet environment')
+    # Start without Mininet prompt - useful for rdcl start action
+    parser.add_option('--no-cli', dest='no_cli',action='store_true', help='Do not show Mininet CLI')
     # Parse input parameters
     (options, args) = parser.parse_args()
     # Done, return
@@ -286,5 +301,3 @@ if __name__ == '__main__':
     opts = parseOptions()
     # Deploy topology
     deploy(opts)
-    # Clean shutdown
-    shutdown()

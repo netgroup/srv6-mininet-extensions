@@ -3,37 +3,37 @@
       {
          "source":"ads1",
          "target":"ads2",
+         "view": "Data",
          "info": {
            "property": {
               "bw": 1,
               "delay": 1000
            },
-           "group": "",
-           "view": "Data"
+           "group": ""
          }
       },
       {
          "source":"ads1",
          "target":"sur1",
+         "view": "Data",
          "info": {
            "property": {
               "bw": 5,
               "delay": 200
            },
-           "group": "",
-           "view": "Data"
+           "group": ""
          }
       },
       {
          "source":"ads2",
          "target":"sur1",
+         "view": "Data",
          "info": {
            "property": {
               "bw": 10,
               "delay": 100
            },
-           "group": "",
-           "view": "Data"
+           "group": ""
          }
       }
    ],

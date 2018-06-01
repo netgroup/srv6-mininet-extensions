@@ -9,6 +9,11 @@ This project depends on [Dreamer Topology Parser and Validator](https://github.c
     > git clone https://github.com/netgroup/Dreamer-Topology-Parser
     > sudo python setup.py install
 
+This project depends on [SRv6 Properties Generators](https://github.com/netgroup/srv6-properties-generators)
+
+    > git clone https://github.com/netgroup/srv6-properties-generators
+    > sudo python setup.py install
+
 ### Run an example experiment ###
 
 **--help** for usage options:
@@ -27,9 +32,9 @@ You can started a topology just providing a topology file (relative path):
 
 now you have started the topology defined in the file example_srv6_topology.json.json (3 SRv6 routers)
 
-The file topology.json in the deployment folder provides a dump of the topology with IPv6 addresses: 
+The file topology.json in the /tmp folder provides a dump of the topology with IPv6 addresses: 
 
-    > cat deployment/topology.json
+    > cat /tmp/topology.json
 
 for example you can find the mgmt ip of the nodes: 
 

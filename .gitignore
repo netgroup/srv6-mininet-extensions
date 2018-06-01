@@ -1,6 +1,3 @@
 .DS_Store
 .idea/
-routing.pyc
-utils.pyc
-deployment/*.json
-deployment/*.sh
+*.pyc

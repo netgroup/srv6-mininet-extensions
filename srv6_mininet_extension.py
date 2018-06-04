@@ -26,14 +26,18 @@
 # @author Alessandro Masci <mascialessandro89@gmail.com>
 
 from optparse import OptionParser
-import argparse
 from collections import defaultdict
 
-# IPaddress dependency
+import argparse
+import os
+import json
+import sys
+
+# IPaddress dependencies
 from ipaddress import IPv6Network
 import ipaddress
 
-# Mininet
+# Mininet dependencies
 from mininet.log import setLogLevel
 from mininet.net import Mininet
 from mininet.topo import Topo
@@ -41,155 +45,133 @@ from mininet.node import RemoteController, OVSBridge, Node
 from mininet.link import TCLink
 from mininet.cli import CLI
 
-# Utils
-from utils import IPHost
-# Routing
-from routing import SPFRouting
-
-import os
-import json
-import sys
-
+# NetworkX dependencies
 import networkx as nx
 from networkx.readwrite import json_graph
 
-from srv6_topo_parser import SRv6TopoParser
+# SRv6 dependencies
+from srv6_topo_parser import *
+from srv6_utils import *
+from srv6_generators import *
+from srv6_net_utils import *
 
-# Mapping node to management address
-node_to_mgmt = {}
-# Routes computed by the routing function
-routes = defaultdict(list)
-# Subnets to via
-subnets_to_via = defaultdict(list)
-# Network topology
-topology = nx.MultiDiGraph()
-# Interface to IP map
-interfaces_to_ip = {}
-# Default via
-host_to_default_via = {}
 # nodes.sh file for setup of the nodes
 NODES_SH = "/tmp/nodes.sh"
-# Routing file
-ROUTING_FILE = "/tmp/routing.json"
 # Topology file
 TOPOLOGY_FILE = "/tmp/topology.json"
-# Management Mask
-MGMT_MASK = 64
-# Data plane Mask
-DP_MASK = 64
-# Data plane soace
-DP_SPACE = 56
-# LoopBack space
-LB_SPACE = 120
-# Loopback Mask
-LB_MASK = 128
+# Mapping node to management address
+nodes_to_mgmt = {}
+# Network topology
+topology = nx.MultiDiGraph()
 
 # Create SRv6 topology and a management network for the hosts.
 class SRv6Topo(Topo):
+
     # Init of the topology
-    def __init__(self, topo="", **opts):
+    def __init__( self, topo="", **opts ):
+        # Parse topology from json file
+        parser = SRv6TopoParser(topo, verbose=False)
+        parser.parse_data()
+        # Save parsed data
+        self.routers = parser.getRouters()
+        p_routers_properties = parser.getRoutersProperties()
+        self.core_links = parser.getCoreLinks()
+        p_core_links_properties = parser.getCoreLinksProperties()
+        # Properties generator
+        generator = PropertiesGenerator()
+        mgmtAllocator = MgmtAllocator()
+        # Second step is the generation of the nodes parameters
+        routers_properties = generator.getRoutersProperties(self.routers)
+        for router_properties, p_router_properties in zip(routers_properties, p_routers_properties):
+            p_router_properties['loopback'] = router_properties.loopback
+            p_router_properties['routerid'] = router_properties.routerid
+            p_router_properties['mgmtip'] = mgmtAllocator.nextMgmtAddress()
+        self.routers_properties = p_routers_properties
+        # Assign mgmt ip to the mgmt station
+        self.mgmtIP = mgmtAllocator.nextMgmtAddress()
+        # Third step is the generation of the links parameters
+        core_links_properties = []
+        for core_link in self.core_links:
+            core_links_properties.append(generator.getLinksProperties([core_link]))
+        for core_link_properties, p_core_link_properties in zip(core_links_properties, p_core_links_properties):
+            p_core_link_properties['iplhs'] = core_link_properties[0].iplhs
+            p_core_link_properties['iprhs'] = core_link_properties[0].iprhs
+            p_core_link_properties['net'] = core_link_properties[0].net
+        self.core_links_properties = p_core_links_properties
         # Init steps
-        Topo.__init__(self, **opts)
-       
-        # Retrieves topology from json file
-        topo = SRv6TopoParser(topo, verbose=False)
+        Topo.__init__( self, **opts )
 
-        # Create subnetting objects for assigning data plane addresses
-        dataPlaneSpace = unicode('2001::0/%d' % DP_SPACE)
-        dataPlaneNets = list(IPv6Network(dataPlaneSpace).subnets(new_prefix=DP_MASK))
-
-        # Create subnetting objects for assigning mgmt plane addresses
-        mgmtPlaneSpace = unicode('2000::0/%d' % MGMT_MASK)
-        mgmtPlaneNet = list(IPv6Network(mgmtPlaneSpace).subnets(new_prefix=MGMT_MASK))[0]
-        mgmtPlaneHosts = mgmtPlaneNet.hosts()
-
-        # Create subnetting objects for assigning loopback plane addresses
-        LoopbackPlaneSpace = unicode('2002::0/%d' % LB_SPACE)
-        LoopbackPlaneNets = list(IPv6Network(LoopbackPlaneSpace).hosts())
-
-        # Define the routers representing the cities
-        routers = topo.getRouters()
-        # Define the core links connecting routers
-        core_links = topo.getCoreLinks()
-        core_links_properties = topo.getCoreLinksProperties()
-
-        # Iterate on the routers and generate them
-        for router in routers:
-            # Assign mgmt plane IP
-            mgmtIP = mgmtPlaneHosts.next()
-            # Assign loopback plane IP
-            loopbackIP = LoopbackPlaneNets.pop(0)
-            # loopback and mgmt ips are generated
-            loopbackip = "%s/%s" % (loopbackIP, LB_MASK)
-            mgmtip = "%s/%s" % (mgmtIP, MGMT_MASK)
+    # Build the topology using parser information
+    def build( self, *args, **params ):
+        # Mapping nodes to nets
+        nodes_to_nets = defaultdict(list)
+        # Init steps
+        Topo.build( self, *args, **params )
+                # Add routers
+        for router, router_properties in zip(self.routers, self.routers_properties):
+            # Assign mgmtip, loobackip, routerid
+            mgmtIP = router_properties['mgmtip']
+            loopbackIP = router_properties['loopback']
+            routerid = router_properties['routerid']
+            loopbackip = "%s/%s" % (loopbackIP, LoopbackAllocator.prefix)
+            mgmtip = "%s/%s" % (mgmtIP, MgmtAllocator.prefix)
             # Add the router to the topology
-            self.addHost(name=router, cls=IPHost, sshd=True, mgmtip=mgmtip,
-                loopbackip=loopbackip)
+            self.addHost(name=router, cls=SRv6Router, sshd=True, mgmtip=mgmtip,
+                loopbackip=loopbackip, routerid=routerid, nets=[])
             # Save mapping node to mgmt
-            node_to_mgmt[router] = str(mgmtIP)
-            # Save the destination
-            subnets_to_via[str(loopbackip)].append(router)
+            nodes_to_mgmt[router] = str(mgmtIP)
             # Add node to the topology graph
             topology.add_node(router, mgmtip=mgmtip , loopbackip=loopbackip,
-                type="router")
-
+                routerid=routerid, type="router")
         # Create the mgmt switch
         br_mgmt = self.addSwitch(name='br-mgmt1', cls=OVSBridge)
-
         # Assign the mgmt ip to the mgmt station
-        mgmtIP = mgmtPlaneHosts.next()
-        mgmtip = "%s/%s" % (mgmtIP, MGMT_MASK)
+        mgmtIP = self.mgmtIP
+        mgmtip = "%s/%s" % (mgmtIP, MgmtAllocator.prefix)
         # Mgmt name
         mgmt = 'mgmt'
         # Create the mgmt node in the root namespace
-        self.addHost(name=mgmt, cls=IPHost, sshd=False, mgmtip=mgmtip,
+        self.addHost(name=mgmt, cls=SRv6Router, sshd=False, mgmtip=mgmtip,
             inNamespace=False)
-        node_to_mgmt[mgmt] = str(mgmtIP)
+        nodes_to_mgmt[mgmt] = str(mgmtIP)
         # Create a link between mgmt switch and mgmt station
         self.addLink(mgmt, br_mgmt, bw=1000, delay=0)
-
         # Connect all the routers to the management network
-        for router in routers:
+        for router in self.routers:
             # Create a link between mgmt switch and the router
             self.addLink(router, br_mgmt, bw=1000, delay=0)
-            self.port(router, br_mgmt)
-
         # Iterate over the core links and generate them
-        for core_link, core_link_property in zip(core_links, core_links_properties):
+        for core_link, core_link_properties in zip(self.core_links, self.core_links_properties):
             # Get the left hand side of the pair
             lhs = core_link[0]
             # Get the right hand side of the pair
             rhs = core_link[1]
             # Create the core link
-            self.addLink(lhs, rhs, bw=core_link_property['bw'],
-                delay=core_link_property['delay'])
+            self.addLink(lhs, rhs, bw=core_link_properties['bw'],
+                delay=core_link_properties['delay'])
             # Get Port number
             portNumber = self.port(lhs, rhs)
             # Create lhs_intf
-            lhs_intf = "%s-eth%d" % (lhs, portNumber[0])
+            lhsintf = "%s-eth%d" % (lhs, portNumber[0])
             # Create rhs_intf
-            rhs_intf = "%s-eth%d" % (rhs, portNumber[1])
+            rhsintf = "%s-eth%d" % (rhs, portNumber[1])
             # Assign a data-plane net to this link
-            net = dataPlaneNets.pop(0)
-            # Get hosts on this subnet
-            host_ips = net.hosts()
-            # Get lhs_ip
-            lhs_ip = "%s/%d" % (host_ips.next(), DP_MASK)
-            # Get rhs_ip
-            rhs_ip = "%s/%d" % (host_ips.next(), DP_MASK)
-            # Map lhs_intf to ip
-            interfaces_to_ip[lhs_intf] = lhs_ip
-            # Map rhs_intf to ip
-            interfaces_to_ip[rhs_intf] = rhs_ip
+            net = core_link_properties['net']
+            # Get lhs ip
+            lhsip = "%s/%d" % (core_link_properties['iplhs'], NetAllocator.prefix)
+            # Get rhs ip
+            rhsip = "%s/%d" % (core_link_properties['iprhs'], NetAllocator.prefix)
             # Add edge to the topology
-            topology.add_edge(lhs, rhs, lhs_intf=lhs_intf, rhs_intf=rhs_intf, lhs_ip=lhs_ip, rhs_ip=rhs_ip)
+            topology.add_edge(lhs, rhs, lhs_intf=lhsintf, rhs_intf=rhsintf, lhs_ip=lhsip, rhs_ip=rhsip)
             # Add the reverse edge to the topology
-            topology.add_edge(rhs, lhs, lhs_intf=rhs_intf, rhs_intf=lhs_intf, lhs_ip=rhs_ip, rhs_ip=lhs_ip)
-            # Map subnet to lhs
-            subnets_to_via[str(net)].append(lhs)
-            # Map subnet to rhs
-            subnets_to_via[str(net)].append(rhs)
+            topology.add_edge(rhs, lhs, lhs_intf=rhsintf, rhs_intf=lhsintf, lhs_ip=rhsip, rhs_ip=lhsip)
+            # Save net
+            lhsnet = {'intf':lhsintf, 'ip':lhsip, 'net':net}
+            rhsnet = {'intf':rhsintf, 'ip':rhsip, 'net':net}
+            self.nodeInfo(lhs)['nets'].append(lhsnet)
+            self.nodeInfo(rhs)['nets'].append(rhsnet)
 
+        
 # Utility function to dump relevant information of the emulation
 def dump():
   # Json dump of the topology
@@ -209,32 +191,33 @@ def dump():
         for link in json_topology['links']]
     # Dump the topology
     json.dump(json_topology, outfile, sort_keys = True, indent = 2)
-  # Json dump of the routing
-  with open(ROUTING_FILE, 'w') as outfile:
-    json.dump(routes, outfile, sort_keys = True, indent = 2)
   # Dump for nodes.sh
   with open(NODES_SH, 'w') as outfile:
     # Create header
     nodes = "declare -a NODES=("
     # Iterate over management ips
-    for node, ip in node_to_mgmt.iteritems():
+    for node, ip in nodes_to_mgmt.iteritems():
       # Add the nodes one by one
       nodes = nodes + "%s " % ip
-    # Eliminate last character
-    nodes = nodes[:-1] + ")\n"
+    if nodes_to_mgmt != {}:
+        # Eliminate last character
+        nodes = nodes[:-1] + ")\n"
+    else:
+        nodes = nodes + ")\n"
     # Write on the file
     outfile.write(nodes)
 
 # Utility function to shutdown the emulation
-def shutdown():
+def stopAll():
     # Clean Mininet emulation environment
     os.system('sudo mn -c')
-    # Clean Mininet emulation environment
-    os.system('sudo killall sshd')
+    # Kill all the started daemons
+    os.system('sudo killall sshd zebra ospf6d')
+    # Restart root ssh daemon
     os.system('service sshd restart')
 
 # Utility function to deploy Mininet topology
-def deploy(options):
+def deploy( options ):
     # Retrieves options
     controller = options.controller
     topologyFile = options.topology
@@ -242,10 +225,8 @@ def deploy(options):
     no_cli = options.no_cli
     # Clean all - clean and exit
     if clean_all:
-        shutdown()
+        stopAll()
         return
-    # Create routing
-    routing = SPFRouting()
     # Set Mininet log level to info
     setLogLevel('info')
     # Create Mininet topology
@@ -259,17 +240,7 @@ def deploy(options):
     net.build()
     # Start topology
     net.start()
-    # Build routing
-    routing.routing(routes, topology, subnets_to_via, interfaces_to_ip)
-    # Iterate over the mininet hosts (routers, servers, mgt)
-    for host in net.hosts:
-        # Get the default via, if exists
-        default_via = host_to_default_via.get(host.name, None)
-        # Get the subnets, if exists
-        subnets = routes.get(host.name, [])
-        # Configure v6 addresses
-        host.configv6(interfaces_to_ip, default_via, subnets)
-    # Dump relevant information
+    # dump information
     dump()
     # Show Mininet prompt
     if not no_cli:
@@ -277,6 +248,8 @@ def deploy(options):
         CLI(net)
         # Stop topology
         net.stop()
+        # Clean all
+        stopAll()
 
 # Parse command line options and dump results
 def parseOptions():

@@ -26,7 +26,7 @@ This project depends on [SRv6 Properties Generators](https://github.com/netgroup
                         IP address of the Controller instance
     --topology=TOPOLOGY   Topology file
 
-You can started a topology just providing a topology file (relative path):
+You can start a topology just providing a topology file (relative path):
 
     > sudo ./srv6_mininet_extensions.py --topology topo/example_srv6_topology.json
 
